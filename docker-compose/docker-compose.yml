@@ -1,0 +1,12 @@
+
+services:
+  nats:
+    image: nats:2.10.18
+    container_name: nats-server
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - ./nats/data:/data/jetstream
+      - ./nats/nats-server.conf:/etc/nats/nats-server.conf
+    command: ["-c", "/etc/nats/nats-server.conf"] # Use the custom configuration file
