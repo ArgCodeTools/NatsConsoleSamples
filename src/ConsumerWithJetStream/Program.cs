@@ -1,26 +1,38 @@
-using NATS.Client.JetStream.Models;
-using NATS.Net;
-
-var url =  "nats://127.0.0.1:4222";
-
-await using var nc = new NatsClient(url); // Connect to NATS server
-
-var js = nc.CreateJetStreamContext();
-
-var streamName = "EVENTS-SAMPLE"; // Stream name and subject to subscribe
-
-var consumerConfig = new ConsumerConfig("my_consumer")
+class Program
 {
-    AckPolicy = ConsumerConfigAckPolicy.Explicit, // Require explicit acknowledgment
-};
+    static async Task Main(string[] args)
+    {
+        Console.WriteLine("Select the consumer type:");
+        Console.WriteLine("1. deliverygroup");
+        Console.WriteLine("2. basic");
+        Console.Write("Enter the option number: ");
+        var input = Console.ReadLine();
 
-// Create the consumer in the stream
-var consumer = await js.CreateOrUpdateConsumerAsync(streamName, consumerConfig);
+        string? opcion = input switch
+        {
+            "1" => "deliverygroup",
+            "2" => "basic",
+            _ => null
+        };
 
-// Subscribe and process messages
-await foreach (var msg in consumer.ConsumeAsync<string>())
-{
-    Console.WriteLine($"Received: {msg.Subject} - {msg.Data}");
-    await msg.AckAsync(); // Deletes the message from the stream
-    Console.WriteLine("Message confirmed");
+        if (string.IsNullOrEmpty(opcion))
+        {
+              Console.WriteLine("Unrecognized option.");
+            return;
+        }
+
+        switch (opcion)
+        {
+            case "deliverygroup":
+                await ConsumerWithDeliveryGroup.RunAsync();
+                break;
+            case "basic":
+                await BasicConsumer.RunAsync();
+                break;
+            // Add more cases as needed
+            default:
+                    Console.WriteLine("Unrecognized option.");
+                break;
+        }
+    }
 }
