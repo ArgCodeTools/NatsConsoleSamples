@@ -17,10 +17,9 @@ var config = new StreamConfig(streamName, [subject])
 
 await js.CreateOrUpdateStreamAsync(config);
 
-for (int i = 0; i < 5; i++)
+for (int i = 0; i < 20; i++)
 {
     var topic = $"events.JetstreamTest.{i}";
     await js.PublishAsync<string>(topic, $"JetStream event {i}");
     Console.WriteLine($"Published message to {topic}");
-    await Task.Delay(TimeSpan.FromSeconds(1));
 }
