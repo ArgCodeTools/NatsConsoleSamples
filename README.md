@@ -141,6 +141,35 @@ Cuando el stream usa `Retention = WorkQueue`, se aplican reglas específicas par
 
 ---
 
+### 👥 DeliveryGroup en JetStream
+
+El parámetro `DeliveryGroup` permite agrupar múltiples instancias de consumidores bajo un mismo nombre de grupo. Esto es fundamental para implementar el patrón de **reparto de trabajo** (work sharing) y lograr procesamiento paralelo y escalable.
+
+### 🎯 ¿Para qué sirve un DeliveryGroup?
+
+- **Balanceo de carga:** Los mensajes del stream se distribuyen entre todos los miembros del grupo, asegurando que cada mensaje sea procesado por un solo worker.
+- **Escalabilidad:** Podés agregar o quitar workers (instancias del consumidor) en el grupo según la demanda, sin cambiar la configuración del stream.
+- **Tolerancia a fallos:** Si un worker falla, los demás continúan procesando los mensajes pendientes del grupo.
+
+### ⚙️ ¿Cómo funciona?
+
+- Todos los consumidores que comparten el mismo `DeliveryGroup` y la misma configuración de filtro (`FilterSubject`) forman parte del mismo grupo de entrega.
+- JetStream entrega cada mensaje a **un solo miembro** del grupo, nunca a más de uno.
+- Es ideal para escenarios donde querés que los mensajes se procesen una sola vez, pero por cualquier instancia disponible del grupo.
+
+### Ejemplo de uso
+```csharp
+var consumerConfig = new ConsumerConfiguration
+{
+    Name = "consumerName",
+    FilterSubject = "events.>",
+    DeliveryGroup = "workers", // Todos los consumidores con este grupo compartirán la carga        
+};
+```
+Luego, podés lanzar varias instancias de consumidores con la misma configuración de grupo para distribuir el procesamiento de mensajes.
+
+---
+
 ### 📚 Recursos adicionales
 
 Para más detalles técnicos, consultá la [documentación oficial de NATS JetStream](https://docs.nats.io/jetstream/concepts/consumers#work-queue-consumers).
