@@ -168,6 +168,16 @@ var consumerConfig = new ConsumerConfiguration
 ```
 Luego, podés lanzar varias instancias de consumidores con la misma configuración de grupo para distribuir el procesamiento de mensajes.
 
+#### ⚙️ Sobre la opción MaxMsgs
+
+El campo `MaxMsgs` en la configuración de consumo de JetStream permite definir la cantidad máxima de mensajes que el consumidor procesa en cada ciclo de consumo.  
+Establecer un valor bajo, como `MaxMsgs = 1`, ayuda a controlar el ritmo de procesamiento y facilita el manejo individual de cada mensaje, evitando la sobrecarga y permitiendo un mejor balanceo de carga entre los consumidores.  
+Este parámetro es especialmente útil en escenarios donde se requiere procesar los mensajes de forma secuencial o limitar el número de mensajes en memoria.
+```csharp
+var consumerOpts = new NatsJSConsumeOpts { MaxMsgs = 1 // Procesar un mensaje a la vez };
+```
+Si se omite o se establece un valor mayor, el consumidor podrá recibir y procesar varios mensajes en paralelo según la capacidad y configuración del sistema.
+
 ---
 
 ### 📚 Recursos adicionales
